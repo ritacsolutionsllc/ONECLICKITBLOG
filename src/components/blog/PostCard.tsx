@@ -5,7 +5,7 @@ import { urlFor } from '@/sanity/image'
 import type { Post } from '@/types/sanity'
 
 export function PostCard({ post }: { post: Post }) {
-  const href = post._type === 'buyer_guide' ? `/post/${post.slug}` : `/post/${post.slug}`
+  const href = `/post/${post.slug}`
 
   return (
     <article className="group">

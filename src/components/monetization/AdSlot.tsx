@@ -9,7 +9,7 @@ interface AdSlotProps {
 }
 
 export function AdSlot({ slot, format = 'auto', className = '' }: AdSlotProps) {
-  const adRef = useRef<HTMLModElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     try {
@@ -21,9 +21,8 @@ export function AdSlot({ slot, format = 'auto', className = '' }: AdSlotProps) {
   }, [])
 
   return (
-    <div className={`ad-container my-6 text-center ${className}`}>
+    <div ref={containerRef} className={`ad-container my-6 text-center ${className}`}>
       <ins
-        ref={adRef}
         className="adsbygoogle"
         style={{ display: 'block' }}
         data-ad-client=""
