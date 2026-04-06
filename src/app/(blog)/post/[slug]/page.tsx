@@ -2,13 +2,14 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { sanityFetch } from '@/sanity/fetch'
-import { postBySlugQuery, guideBySlugQuery, allPostSlugsQuery, allGuideSlugsQuery } from '@/sanity/lib/queries'
+import { postBySlugQuery, guideBySlugQuery, allPostSlugsQuery, allGuideSlugsQuery, siteSettingsQuery } from '@/sanity/lib/queries'
 import { urlFor } from '@/sanity/image'
-import type { Post, BuyerGuide, SlugItem } from '@/types/sanity'
+import type { Post, BuyerGuide, SlugItem, SiteSettings } from '@/types/sanity'
 import { PortableTextRenderer } from '@/components/portable-text/PortableTextRenderer'
 import { RelatedPosts } from '@/components/blog/RelatedPosts'
 import { ShareBar } from '@/components/blog/ShareBar'
 import { AffiliateProductCard } from '@/components/monetization/AffiliateProductCard'
+import { AdSlot } from '@/components/monetization/AdSlot'
 import { ArticleJsonLd, ProductListJsonLd } from '@/components/seo/JsonLd'
 import { TableOfContents } from '@/components/blog/TableOfContents'
 import { formatDate } from '@/lib/utils'
@@ -70,11 +71,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PostPage({ params }: PageProps) {
   // Try original_post first, then buyer_guide
-  const post = await sanityFetch<Post | null>({
-    query: postBySlugQuery,
-    params: { slug: params.slug },
-    tags: ['post'],
-  })
+  const [post, settings] = await Promise.all([
+    sanityFetch<Post | null>({
+      query: postBySlugQuery,
+      params: { slug: params.slug },
+      tags: ['post'],
+    }),
+    sanityFetch<SiteSettings | null>({
+      query: siteSettingsQuery,
+      tags: ['siteSettings'],
+    }),
+  ])
 
   const guide = post
     ? null
@@ -85,6 +92,8 @@ export default async function PostPage({ params }: PageProps) {
       })
 
   if (!post && !guide) notFound()
+
+  const showAds = settings?.enableAds && settings?.adsenseId
 
   // Render buyer guide
   if (guide) {
@@ -131,6 +140,8 @@ export default async function PostPage({ params }: PageProps) {
           </Link>{' '}
           for details.
         </div>
+
+        {showAds && <AdSlot slot="guide-top" adsenseId={settings.adsenseId!} format="horizontal" />}
 
         {guide.intro && (
           <div className="mt-6">
@@ -212,6 +223,8 @@ export default async function PostPage({ params }: PageProps) {
           </aside>
         </div>
       )}
+
+      {showAds && <AdSlot slot="post-bottom" adsenseId={settings.adsenseId!} format="auto" />}
 
       <div className="mt-8">
         <ShareBar title={post!.title} slug={post!.slug} />

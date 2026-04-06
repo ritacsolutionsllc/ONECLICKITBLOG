@@ -4,11 +4,12 @@ import { useEffect, useRef } from 'react'
 
 interface AdSlotProps {
   slot: string
+  adsenseId: string
   format?: 'auto' | 'rectangle' | 'horizontal' | 'vertical'
   className?: string
 }
 
-export function AdSlot({ slot, format = 'auto', className = '' }: AdSlotProps) {
+export function AdSlot({ slot, adsenseId, format = 'auto', className = '' }: AdSlotProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -25,7 +26,7 @@ export function AdSlot({ slot, format = 'auto', className = '' }: AdSlotProps) {
       <ins
         className="adsbygoogle"
         style={{ display: 'block' }}
-        data-ad-client=""
+        data-ad-client={adsenseId}
         data-ad-slot={slot}
         data-ad-format={format}
         data-full-width-responsive="true"
