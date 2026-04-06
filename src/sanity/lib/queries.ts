@@ -134,6 +134,12 @@ export const siteSettingsQuery = groq`*[_type == "siteSettings"][0] {
   socialLinks
 }`
 
+// ── Sources (for RSS ingestion) ──────────────────────────
+export const activeSourcesQuery = groq`*[_type == "source" && active == true && type == "rss"] {
+  _id, name, "slug": slug.current, url,
+  category->{ _id }
+}`
+
 // ── Sitemap helpers ───────────────────────────────────────
 export const allPostSlugsQuery = groq`*[_type == "original_post" && defined(slug.current)] {
   "slug": slug.current, _updatedAt
