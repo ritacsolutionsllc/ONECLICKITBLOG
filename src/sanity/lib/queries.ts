@@ -83,7 +83,7 @@ export const guideBySlugQuery = groq`*[_type == "buyer_guide" && slug.current ==
 }`
 
 // ── Digest by slug ────────────────────────────────────────
-export const digestBySlugQuery = groq`*[_type == "news_digest" && slug.current == $slug][0] {
+export const digestBySlugQuery = groq`*[_type == "news_digest" && slug.current == $slug && status == "published"][0] {
   _id, title, "slug": slug.current, summary, publishedAt, status,
   items[] {
     headline, sourceUrl, summary, aiTake,
@@ -134,6 +134,12 @@ export const siteSettingsQuery = groq`*[_type == "siteSettings"][0] {
   socialLinks
 }`
 
+// ── Sources (for RSS ingestion) ──────────────────────────
+export const activeSourcesQuery = groq`*[_type == "source" && active == true && type == "rss"] {
+  _id, name, "slug": slug.current, url,
+  category->{ _id }
+}`
+
 // ── Sitemap helpers ───────────────────────────────────────
 export const allPostSlugsQuery = groq`*[_type == "original_post" && defined(slug.current)] {
   "slug": slug.current, _updatedAt
@@ -143,7 +149,7 @@ export const allGuideSlugsQuery = groq`*[_type == "buyer_guide" && defined(slug.
   "slug": slug.current, _updatedAt
 }`
 
-export const allDigestSlugsQuery = groq`*[_type == "news_digest" && defined(slug.current)] {
+export const allDigestSlugsQuery = groq`*[_type == "news_digest" && defined(slug.current) && status == "published"] {
   "slug": slug.current, _updatedAt
 }`
 

@@ -13,7 +13,7 @@ export function TrendingModule({ trends }: { trends: TrendItem[] }) {
       </div>
       <ul className="space-y-3">
         {trends.slice(0, 5).map((trend, i) => (
-          <li key={i} className="flex items-start gap-3">
+          <li key={trend.title} className="flex items-start gap-3">
             <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-500 dark:bg-gray-800">
               {i + 1}
             </span>

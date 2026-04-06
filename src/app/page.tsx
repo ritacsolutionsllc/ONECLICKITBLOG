@@ -1,6 +1,6 @@
 import { sanityFetch } from '@/sanity/fetch'
-import { homepageQuery, trendRadarQuery } from '@/sanity/lib/queries'
-import type { HomepageData, TrendRadar } from '@/types/sanity'
+import { homepageQuery, trendRadarQuery, siteSettingsQuery } from '@/sanity/lib/queries'
+import type { HomepageData, TrendRadar, SiteSettings } from '@/types/sanity'
 import { FeaturedHero } from '@/components/blog/FeaturedHero'
 import { PostCard } from '@/components/blog/PostCard'
 import { TrendingModule } from '@/components/blog/TrendingModule'
@@ -9,7 +9,7 @@ import Link from 'next/link'
 import { formatDate } from '@/lib/utils'
 
 export default async function HomePage() {
-  const [data, radar] = await Promise.all([
+  const [data, radar, settings] = await Promise.all([
     sanityFetch<HomepageData | null>({
       query: homepageQuery,
       tags: ['post', 'guide', 'digest'],
@@ -17,6 +17,10 @@ export default async function HomePage() {
     sanityFetch<TrendRadar | null>({
       query: trendRadarQuery,
       tags: ['trend'],
+    }),
+    sanityFetch<SiteSettings | null>({
+      query: siteSettingsQuery,
+      tags: ['siteSettings'],
     }),
   ])
 
@@ -100,7 +104,7 @@ export default async function HomePage() {
       )}
 
       {/* Newsletter */}
-      <NewsletterCta />
+      <NewsletterCta endpoint={settings?.newsletterEndpoint} />
     </div>
   )
 }

@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { sanityFetch } from '@/sanity/fetch'
-import { digestBySlugQuery, allDigestSlugsQuery } from '@/sanity/lib/queries'
-import type { Digest, SlugItem } from '@/types/sanity'
+import { digestBySlugQuery, allDigestSlugsQuery, siteSettingsQuery } from '@/sanity/lib/queries'
+import type { Digest, SlugItem, SiteSettings } from '@/types/sanity'
 import { DigestItemCard } from '@/components/blog/DigestItemCard'
+import { AdSlot } from '@/components/monetization/AdSlot'
 import { ArticleJsonLd } from '@/components/seo/JsonLd'
 import { formatDate } from '@/lib/utils'
 
@@ -33,13 +34,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function DigestPage({ params }: PageProps) {
-  const digest = await sanityFetch<Digest | null>({
-    query: digestBySlugQuery,
-    params: { slug: params.slug },
-    tags: ['digest'],
-  })
+  const [digest, settings] = await Promise.all([
+    sanityFetch<Digest | null>({
+      query: digestBySlugQuery,
+      params: { slug: params.slug },
+      tags: ['digest'],
+    }),
+    sanityFetch<SiteSettings | null>({
+      query: siteSettingsQuery,
+      tags: ['siteSettings'],
+    }),
+  ])
 
   if (!digest) notFound()
+
+  const showAds = settings?.enableAds && settings?.adsenseId
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-8">
@@ -66,6 +75,8 @@ export default async function DigestPage({ params }: PageProps) {
         <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">{digest.summary}</p>
       )}
 
+      {showAds && <AdSlot slot="digest-top" adsenseId={settings.adsenseId!} format="horizontal" />}
+
       {digest.items && digest.items.length > 0 && (
         <div className="mt-8">
           {digest.items.map((item, i) => (
@@ -73,6 +84,8 @@ export default async function DigestPage({ params }: PageProps) {
           ))}
         </div>
       )}
+
+      {showAds && <AdSlot slot="digest-bottom" adsenseId={settings.adsenseId!} format="auto" />}
     </article>
   )
 }
