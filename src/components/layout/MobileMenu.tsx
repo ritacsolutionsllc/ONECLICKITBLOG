@@ -37,9 +37,31 @@ export function MobileMenu({ categories }: { categories: Category[] }) {
                 <Link
                   href="/trend-radar"
                   onClick={() => setOpen(false)}
-                  className="block text-sm font-medium text-blue-600 dark:text-blue-400"
+                  className="block text-sm font-medium text-brand-accent dark:text-brand-light"
                 >
                   Trend Radar
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/threat-map"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 text-sm font-medium text-red-600 dark:text-red-400"
+                >
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-500" />
+                  </span>
+                  Cyber Threat Map
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/digest"
+                  onClick={() => setOpen(false)}
+                  className="block text-sm text-gray-600 dark:text-gray-400"
+                >
+                  Daily Brief Archive
                 </Link>
               </li>
             </ul>
