@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/layout/ThemeProvider'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
@@ -67,6 +68,7 @@ export default async function RootLayout({
           <Footer settings={settings} />
           <ConsentBanner />
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   )
