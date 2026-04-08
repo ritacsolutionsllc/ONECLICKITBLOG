@@ -5,6 +5,7 @@ import { FeaturedHero } from '@/components/blog/FeaturedHero'
 import { PostCard } from '@/components/blog/PostCard'
 import { TrendingModule } from '@/components/blog/TrendingModule'
 import { NewsletterCta } from '@/components/cta/NewsletterCta'
+import { LiveStatsTicker } from '@/components/blog/LiveStatsTicker'
 import Link from 'next/link'
 import { formatDate } from '@/lib/utils'
 
@@ -28,6 +29,9 @@ export default async function HomePage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
+      {/* Global Threat Monitor */}
+      <LiveStatsTicker />
+
       {/* Featured */}
       {featured.length > 0 && <FeaturedHero posts={featured} />}
 

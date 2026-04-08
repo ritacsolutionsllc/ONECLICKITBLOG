@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/layout/ThemeProvider'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { ConsentBanner } from '@/components/layout/ConsentBanner'
+import { Watermark } from '@/components/layout/Watermark'
 import { sanityFetch } from '@/sanity/fetch'
 import { allCategoriesQuery, siteSettingsQuery } from '@/sanity/lib/queries'
 import type { Category, SiteSettings } from '@/types/sanity'
@@ -57,8 +58,12 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
         <ThemeProvider>
+          <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-brand-accent focus:px-4 focus:py-2 focus:text-white">
+            Skip to content
+          </a>
+          <Watermark />
           <Header categories={categories || []} />
-          <main className="min-h-screen">{children}</main>
+          <main id="main-content" className="relative z-10 min-h-screen">{children}</main>
           <Footer settings={settings} />
           <ConsentBanner />
         </ThemeProvider>
