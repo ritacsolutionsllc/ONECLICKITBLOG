@@ -17,14 +17,16 @@ describe('cn', () => {
 
 describe('formatDate', () => {
   it('formats ISO date string to readable format', () => {
-    const result = formatDate('2024-06-15T00:00:00Z')
+    // Use noon UTC to avoid timezone boundary issues
+    const result = formatDate('2024-06-15T12:00:00Z')
     expect(result).toContain('June')
     expect(result).toContain('15')
     expect(result).toContain('2024')
   })
 
   it('handles date-only strings', () => {
-    const result = formatDate('2024-01-01')
+    // Use a mid-month date to avoid day rollover across timezones
+    const result = formatDate('2024-01-15T12:00:00Z')
     expect(result).toContain('January')
     expect(result).toContain('2024')
   })

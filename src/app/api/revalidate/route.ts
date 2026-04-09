@@ -2,17 +2,7 @@ import { revalidateTag } from 'next/cache'
 import { type NextRequest, NextResponse } from 'next/server'
 import { parseBody } from 'next-sanity/webhook'
 import { revalidateSecret } from '@/sanity/env'
-
-const tagsByType: Record<string, string[]> = {
-  original_post: ['post', 'homepage'],
-  buyer_guide: ['guide', 'homepage'],
-  news_digest: ['digest', 'homepage'],
-  trend_radar: ['trend'],
-  category: ['category', 'homepage'],
-  author: ['author'],
-  siteSettings: ['siteSettings'],
-  source: ['source'],
-}
+import { tagsByType } from '@/lib/revalidation-tags'
 
 export async function POST(req: NextRequest) {
   try {

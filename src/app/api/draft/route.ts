@@ -40,13 +40,7 @@ interface GeneratedArticle {
   metaDescription: string
 }
 
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
-    .slice(0, 96)
-}
+import { slugify } from '@/lib/text-utils'
 
 function articleToPortableText(
   article: GeneratedArticle,
@@ -193,8 +187,10 @@ export async function POST(req: NextRequest) {
     // 2. Convert to Portable Text
     const portableTextBody = articleToPortableText(article)
 
-    // 3. Create draft in Sanity
-    const doc = await sanityWriteClient.create({
+    // 3. Create draft in Sanity (drafts. prefix keeps it unpublished)
+    const docId = `drafts.${crypto.randomUUID()}`
+    const doc = await sanityWriteClient.createOrReplace({
+      _id: docId,
       _type: 'original_post',
       title: article.title,
       slug: { _type: 'slug', current: slugify(article.title) },
@@ -208,7 +204,11 @@ export async function POST(req: NextRequest) {
         metaDescription: article.metaDescription,
       },
       ...(body.categoryId && {
-        categories: [{ _type: 'reference', _ref: body.categoryId }],
+        categories: [{
+          _type: 'reference',
+          _ref: body.categoryId,
+          _key: crypto.randomUUID().replace(/-/g, '').slice(0, 12),
+        }],
       }),
     })
 
@@ -222,7 +222,6 @@ export async function POST(req: NextRequest) {
     })
   } catch (err) {
     console.error('Draft generation error:', err)
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    return new NextResponse(`Internal error: ${message}`, { status: 500 })
+    return new NextResponse('Internal error', { status: 500 })
   }
 }

@@ -2,6 +2,8 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { sanityFetch } from '@/sanity/fetch'
 import { sanityWriteClient } from '@/sanity/writeClient'
 import { groq } from 'next-sanity'
+import { slugify, extractKeywords } from '@/lib/text-utils'
+import { allCategoriesQuery } from '@/sanity/lib/queries'
 
 /**
  * Trend Discovery API endpoint
@@ -38,7 +40,7 @@ interface ScoredTrend {
   categoryId?: string
 }
 
-const recentDigestItemsQuery = groq`*[_type == "news_digest" && defined(publishedAt)] | order(publishedAt desc)[0...10] {
+const recentDigestItemsQuery = groq`*[_type == "news_digest" && status == "published" && defined(publishedAt)] | order(publishedAt desc)[0...10] {
   publishedAt,
   items[] {
     headline,
@@ -52,44 +54,10 @@ const existingTrendRadarQuery = groq`*[_type == "trend_radar"] | order(published
   trends[] { title }
 }`
 
-const allCategoriesForTrendsQuery = groq`*[_type == "category"] { _id, title, "slug": slug.current }`
-
 function checkAuth(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
   return cronSecret && authHeader === `Bearer ${cronSecret}`
-}
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
-    .slice(0, 96)
-}
-
-function extractKeywords(headline: string): string[] {
-  const stopWords = new Set([
-    'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
-    'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could',
-    'should', 'may', 'might', 'shall', 'can', 'need', 'dare', 'ought',
-    'used', 'to', 'of', 'in', 'for', 'on', 'with', 'at', 'by', 'from',
-    'as', 'into', 'through', 'during', 'before', 'after', 'above', 'below',
-    'between', 'out', 'off', 'over', 'under', 'again', 'further', 'then',
-    'once', 'and', 'but', 'or', 'nor', 'not', 'so', 'yet', 'both',
-    'either', 'neither', 'each', 'every', 'all', 'any', 'few', 'more',
-    'most', 'other', 'some', 'such', 'no', 'only', 'own', 'same', 'than',
-    'too', 'very', 'just', 'because', 'how', 'what', 'which', 'who',
-    'when', 'where', 'why', 'this', 'that', 'these', 'those', 'it', 'its',
-    'new', 'says', 'said', 'also', 'get', 'gets', 'got', 'like', 'make',
-    'makes', 'made', 'first', 'now', 'way', 'may', 'many', 'much',
-  ])
-
-  return headline
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, '')
-    .split(/\s+/)
-    .filter((w) => w.length > 2 && !stopWords.has(w))
 }
 
 function scoreTrends(
@@ -169,7 +137,7 @@ async function handleTrends(req: NextRequest) {
         tags: ['digest'],
       }),
       sanityFetch<CategoryInfo[]>({
-        query: allCategoriesForTrendsQuery,
+        query: allCategoriesQuery,
         tags: ['category'],
       }),
       sanityFetch<{ _id: string; trends?: Array<{ title: string }> } | null>({

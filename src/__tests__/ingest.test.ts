@@ -1,31 +1,6 @@
 import { describe, it, expect } from 'vitest'
-
-// Test the slugify and deduplication logic from the ingest route
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
-    .slice(0, 96)
-}
-
-interface FeedItem {
-  headline: string
-  sourceUrl: string
-  summary: string
-  sourceRef: string
-}
-
-function deduplicateItems(items: FeedItem[]): FeedItem[] {
-  const seen = new Set<string>()
-  return items.filter((item) => {
-    const key = item.sourceUrl || item.headline
-    if (seen.has(key)) return false
-    seen.add(key)
-    return true
-  })
-}
+import { slugify } from '@/lib/text-utils'
+import { deduplicateItems, type FeedItem } from '@/lib/ingest-utils'
 
 describe('slugify', () => {
   it('converts text to lowercase kebab-case', () => {
@@ -55,11 +30,11 @@ describe('slugify', () => {
 })
 
 describe('deduplicateItems', () => {
-  const makeItem = (headline: string, sourceUrl: string): FeedItem => ({
+  const makeItem = (headline: string, sourceUrl: string, sourceRef = 'ref-1'): FeedItem => ({
     headline,
     sourceUrl,
     summary: '',
-    sourceRef: 'ref-1',
+    sourceRef,
   })
 
   it('removes duplicates by URL', () => {
@@ -72,13 +47,22 @@ describe('deduplicateItems', () => {
     expect(result[0].headline).toBe('Article A')
   })
 
-  it('falls back to headline for dedup when URL is empty', () => {
+  it('falls back to sourceRef:headline for dedup when URL is empty', () => {
     const items = [
-      makeItem('Same Headline', ''),
-      makeItem('Same Headline', ''),
+      makeItem('Same Headline', '', 'ref-1'),
+      makeItem('Same Headline', '', 'ref-1'),
     ]
     const result = deduplicateItems(items)
     expect(result).toHaveLength(1)
+  })
+
+  it('keeps items with same headline from different sources when URL is empty', () => {
+    const items = [
+      makeItem('Same Headline', '', 'ref-1'),
+      makeItem('Same Headline', '', 'ref-2'),
+    ]
+    const result = deduplicateItems(items)
+    expect(result).toHaveLength(2)
   })
 
   it('keeps items with different URLs', () => {

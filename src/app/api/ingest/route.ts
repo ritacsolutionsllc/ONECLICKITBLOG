@@ -3,6 +3,8 @@ import Parser from 'rss-parser'
 import { sanityFetch } from '@/sanity/fetch'
 import { sanityWriteClient } from '@/sanity/writeClient'
 import { activeSourcesQuery } from '@/sanity/lib/queries'
+import { slugify } from '@/lib/text-utils'
+import { deduplicateItems, type FeedItem } from '@/lib/ingest-utils'
 
 interface SanitySource {
   _id: string
@@ -10,13 +12,6 @@ interface SanitySource {
   slug: string
   url: string
   category?: { _id: string }
-}
-
-interface FeedItem {
-  headline: string
-  sourceUrl: string
-  summary: string
-  sourceRef: string
 }
 
 const parser = new Parser({
@@ -28,14 +23,6 @@ function checkAuth(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
   return cronSecret && authHeader === `Bearer ${cronSecret}`
-}
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
-    .slice(0, 96)
 }
 
 async function fetchFeedItems(source: SanitySource): Promise<FeedItem[]> {
@@ -51,16 +38,6 @@ async function fetchFeedItems(source: SanitySource): Promise<FeedItem[]> {
     console.error(`Failed to fetch feed from ${source.name} (${source.url}):`, err)
     return []
   }
-}
-
-function deduplicateItems(items: FeedItem[]): FeedItem[] {
-  const seen = new Set<string>()
-  return items.filter((item) => {
-    const key = item.sourceUrl || item.headline
-    if (seen.has(key)) return false
-    seen.add(key)
-    return true
-  })
 }
 
 export async function GET(req: NextRequest) {
@@ -114,10 +91,11 @@ async function handleIngest(req: NextRequest) {
       })
     }
 
-    // 4. Create a draft news_digest in Sanity
+    // 4. Create or update a draft news_digest in Sanity (deterministic ID prevents duplicates)
     const today = new Date().toISOString().split('T')[0]
     const title = `Tech Digest — ${today}`
     const slug = slugify(title)
+    const deterministicId = `drafts.digest-${today}`
 
     const digestItems = uniqueItems.map((item) => ({
       _type: 'digestItem' as const,
@@ -128,7 +106,8 @@ async function handleIngest(req: NextRequest) {
       source: { _type: 'reference' as const, _ref: item.sourceRef },
     }))
 
-    const doc = await sanityWriteClient.create({
+    const doc = await sanityWriteClient.createOrReplace({
+      _id: deterministicId,
       _type: 'news_digest',
       title,
       slug: { _type: 'slug', current: slug },
