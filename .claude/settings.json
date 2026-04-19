@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const j=JSON.parse(d);const f=j.tool_input?.file_path||j.tool_response?.filePath||'';if(!/\\\\.(ts|tsx)$/.test(f)||!f.includes('/src/'))process.exit(0);const{execSync}=require('child_process');try{execSync('npx tsc --noEmit',{stdio:'pipe',cwd:process.cwd()})}catch(e){const out=(e.stdout?.toString()||'')+(e.stderr?.toString()||'');process.stderr.write(out.split('\\\\n').slice(0,40).join('\\\\n'))}})\" 2>&1 || true",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}

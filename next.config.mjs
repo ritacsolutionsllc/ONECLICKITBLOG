@@ -24,24 +24,24 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      // Redirect old domain to new canonical domain (preserves SEO)
+      // Canonical domain is oneclickit.today — redirect alternate domain
       {
         source: '/:path*',
-        has: [{ type: 'host', value: 'oneclickit.today' }],
-        destination: 'https://oneclickittoday.com/:path*',
+        has: [{ type: 'host', value: 'oneclickittoday.com' }],
+        destination: 'https://oneclickit.today/:path*',
         permanent: true,
       },
-      {
-        source: '/:path*',
-        has: [{ type: 'host', value: 'www.oneclickit.today' }],
-        destination: 'https://oneclickittoday.com/:path*',
-        permanent: true,
-      },
-      // Force www → apex on new domain
       {
         source: '/:path*',
         has: [{ type: 'host', value: 'www.oneclickittoday.com' }],
-        destination: 'https://oneclickittoday.com/:path*',
+        destination: 'https://oneclickit.today/:path*',
+        permanent: true,
+      },
+      // Force www → apex on canonical domain
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.oneclickit.today' }],
+        destination: 'https://oneclickit.today/:path*',
         permanent: true,
       },
     ]

@@ -13,7 +13,7 @@ export default function PrivacyPolicyPage() {
       <div className="mt-6 space-y-4 text-gray-600 dark:text-gray-400">
         <p>
           {SITE_NAME} (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) operates the
-          oneclickittoday.com website. This page informs you of our policies regarding the
+          oneclickit.today website. This page informs you of our policies regarding the
           collection, use, and disclosure of personal data when you use our site.
         </p>
         <h2 className="text-xl font-semibold text-foreground">Information We Collect</h2>

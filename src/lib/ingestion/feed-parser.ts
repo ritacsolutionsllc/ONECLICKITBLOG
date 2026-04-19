@@ -4,7 +4,7 @@ import type { IngestionSource, ParsedFeedItem } from './types'
 const parser = new RSSParser({
   timeout: 15_000,
   headers: {
-    'User-Agent': 'OneClickIT-Bot/1.0 (+https://oneclickittoday.com)',
+    'User-Agent': 'OneClickIT-Bot/1.0 (+https://oneclickit.today)',
   },
 })
 

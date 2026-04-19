@@ -12,7 +12,7 @@ export default function TermsPage() {
       <p className="mt-2 text-sm text-gray-500">Last updated: April 2026</p>
       <div className="mt-6 space-y-4 text-gray-600 dark:text-gray-400">
         <p>
-          By accessing {SITE_NAME} (oneclickittoday.com), you agree to be bound by these
+          By accessing {SITE_NAME} (oneclickit.today), you agree to be bound by these
           terms of service.
         </p>
         <h2 className="text-xl font-semibold text-foreground">Use of Content</h2>
