@@ -3,10 +3,12 @@ import Image from 'next/image'
 import type { Category } from '@/types/sanity'
 import { ThemeToggle } from './ThemeToggle'
 import { MobileMenu } from './MobileMenu'
+import { CategoryNav } from './CategoryNav'
 
 export function Header({ categories }: { categories: Category[] }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/80">
+    <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/90 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/90">
+      {/* Top bar */}
       <div className="mx-auto max-w-6xl px-4 py-3">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
@@ -22,22 +24,18 @@ export function Header({ categories }: { categories: Category[] }) {
               <span className="text-brand dark:text-gray-100">OneClick</span>
               <span className="text-brand dark:text-gray-100">IT</span>
               <span className="text-brand-accent">.</span>
-              <span className="text-brand-accent">blog</span>
+              <span className="text-brand-accent">news</span>
             </span>
           </Link>
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-5 lg:flex" aria-label="Main navigation">
-            {categories.slice(0, 5).map((cat) => (
-              <Link
-                key={cat._id}
-                href={`/category/${cat.slug}`}
-                className="text-sm text-gray-600 transition-colors hover:text-brand-accent dark:text-gray-400 dark:hover:text-brand-light"
-              >
-                {cat.title}
-              </Link>
-            ))}
-            <span className="h-4 w-px bg-gray-300 dark:bg-gray-700" aria-hidden="true" />
+            <Link
+              href="/news"
+              className="text-sm text-gray-600 transition-colors hover:text-brand-accent dark:text-gray-400 dark:hover:text-brand-light"
+            >
+              All News
+            </Link>
             <Link
               href="/trend-radar"
               className="text-sm text-gray-600 transition-colors hover:text-brand-accent dark:text-gray-400 dark:hover:text-brand-light"
@@ -64,6 +62,9 @@ export function Header({ categories }: { categories: Category[] }) {
           </div>
         </div>
       </div>
+
+      {/* Category nav strip */}
+      <CategoryNav categories={categories} />
     </header>
   )
 }
