@@ -156,3 +156,12 @@ export const allDigestSlugsQuery = groq`*[_type == "news_digest" && defined(slug
 export const allCategorySlugsQuery = groq`*[_type == "category" && defined(slug.current)] {
   "slug": slug.current, _updatedAt
 }`
+
+// ── All Posts (for /news page) ────────────────────────────
+export const allPostsQuery = groq`*[_type in ["original_post", "buyer_guide"]] | order(publishedAt desc)[0...100] {
+  _id, _type, title, "slug": slug.current, excerpt, publishedAt, featured,
+  "postType": postType,
+  "mainImage": mainImage { ${imageFields} },
+  ${categoryRef},
+  ${authorRef}
+}`
