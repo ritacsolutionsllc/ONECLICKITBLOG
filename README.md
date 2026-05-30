@@ -1,53 +1,85 @@
-# OneClickIT Blog
+# OneClickNews
 
-A technology blog built with Next.js 14 and Sanity CMS, powering [oneclickittoday.com](https://oneclickittoday.com).
+> Editorial content hub and product showcase for RITAC Solutions
 
-## Stack
+**Live URL:** https://oneclickitnews.base44.app  
+**Pricing:** Free — content site (newsletter + sponsorship monetization)  
+**Enforcement Gates:** 0/3 passing  
+**Current Status:** 🔴 7 /admin/* routes publicly exposed. No editorial login. FTC disclosure missing.
 
-- **Framework**: Next.js 14 (App Router)
-- **CMS**: Sanity v3
-- **Styling**: Tailwind CSS
-- **Analytics**: Vercel Analytics
+---
 
-## Required Environment Variables
+## Implementation Priority: #10 / 13
 
-| Variable | Description |
-|---|---|
-| `NEXT_PUBLIC_SANITY_PROJECT_ID` | Your Sanity project ID |
-| `NEXT_PUBLIC_SANITY_DATASET` | Sanity dataset name (e.g. `production`) |
-| `SANITY_API_TOKEN` | Sanity API token for server-side reads/writes |
+## Enforcement Gate Checklist
 
-## Setup
+| Gate | Status |
+|------|--------|
+| Routing (Public/Protected/Admin classification) | ❌ |
+| Auth (Login + Signup pages) | ❌ |
+| Pricing (/pricing page with Stripe CTAs) | ❌ |
+| Entitlements (PlanGate on premium features) | ❌ |
+| Stripe Webhook | ✅ Registered May 29 2026 |
+| Admin Safety (AuthGuard adminOnly) | ❌ |
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/oneclickitai/ONECLICKITBLOG.git
-   cd ONECLICKITBLOG
-   ```
+---
 
-2. Copy the example environment file and fill in your values:
-   ```bash
-   cp .env.example .env.local
-   ```
+## Protected Routes
 
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
+- `/admin/AdminDashboard`
+- `/admin/AdminPosts`
+- `/admin/AdminMedia`
+- `/admin/AdminProducts`
+- `/admin/AdminTopics`
+- `/admin/AdminAnalytics`
 
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
+## Plan Gates
 
-Open [http://localhost:3000](http://localhost:3000) to view the blog. Sanity Studio is available at [http://localhost:3000/admin](http://localhost:3000/admin).
+- `N/A — content site, no paid tiers`
 
-## Project Structure
+---
 
-- `src/app/` — Next.js App Router pages and API routes
-- `src/sanity/` — Sanity client configuration, schemas, and queries
-- `src/components/` — Shared React components
+## Backend Functions (all live)
 
-## Architecture
+| Function | Endpoint |
+|----------|----------|
+| Stripe Checkout | `POST https://superagent-b2d614b7.base44.app/functions/createStripeCheckout` |
+| Billing Portal | `POST https://superagent-b2d614b7.base44.app/functions/createBillingPortal` |
+| Usage Gate | `POST https://superagent-b2d614b7.base44.app/functions/checkUsageGate` |
+| Export Gate | `POST https://superagent-b2d614b7.base44.app/functions/exportGate` |
+| Audit Logger | `POST https://superagent-b2d614b7.base44.app/functions/auditLogger` |
 
-See [CLAUDE.md](CLAUDE.md) for detailed architecture notes.
+---
+
+## Universal Components Required
+
+- `AuthGuard.jsx` — wraps all protected routes
+- `PlanGate.jsx` — wraps premium features with upgrade prompt
+- `BillingPortalButton.jsx` — opens Stripe customer self-serve portal
+
+---
+
+## QA Checklist
+
+- [ ] Logged-out users cannot access protected routes (test in incognito)
+- [ ] /login and /signup are separate with correct redirect behavior
+- [ ] Public homepage shows marketing content — not dashboard UI
+- [ ] /pricing page exists and is publicly accessible
+- [ ] Pricing CTAs trigger createStripeCheckout correctly
+- [ ] Premium features show upgrade prompt to free users
+- [ ] Premium features blocked at logic layer (not just UI)
+- [ ] Admin routes return 403 for non-admin authenticated users
+- [ ] BillingPortalButton opens Stripe customer portal
+- [ ] No demo/test data visible to real users
+- [ ] Mobile layout (375px) — no overflow or broken elements
+
+---
+
+## Related Apps (Cross-sell)
+
+All 13 apps: https://oneclickitonboarding.base44.app  
+Book a demo: https://calendly.com/oneclickitllc
+
+---
+
+*Managed by RITAC Solutions · RITAC Command AI Agent · May 2026*
