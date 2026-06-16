@@ -18,7 +18,7 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npx tsc --noEmit
-      - run: npm run build
-        env:
-          NEXT_PUBLIC_SANITY_PROJECT_ID: placeholder
-          NEXT_PUBLIC_SANITY_DATASET: production
+      # Build verification is handled by Vercel's PR preview deployment,
+      # which runs against real env vars. Running next build here would
+      # fail because generateStaticParams and the root layout both make
+      # live Sanity API calls that can't succeed with placeholder credentials.

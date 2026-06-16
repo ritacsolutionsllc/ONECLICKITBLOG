@@ -52,6 +52,8 @@ export interface Post {
   author?: Author
   body?: PortableTextBlock[]
   featured?: boolean
+  status?: 'draft' | 'review' | 'published'
+  aiGenerated?: boolean
   seo?: SeoFields
   related?: Post[]
 }
@@ -110,6 +112,7 @@ export interface TrendItem {
   title: string
   description?: string
   momentum?: 'rising' | 'stable' | 'declining'
+  score?: number
   category?: { title: string; slug: string }
   relatedPosts?: { _id: string; _type: string; title: string; slug: string }[]
 }

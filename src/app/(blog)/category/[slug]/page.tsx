@@ -10,11 +10,15 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const categories = await sanityFetch<SlugItem[]>({
-    query: allCategorySlugsQuery,
-    tags: ['category'],
-  })
-  return (categories || []).map((c) => ({ slug: c.slug }))
+  try {
+    const categories = await sanityFetch<SlugItem[]>({
+      query: allCategorySlugsQuery,
+      tags: ['category'],
+    })
+    return (categories || []).map((c) => ({ slug: c.slug }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

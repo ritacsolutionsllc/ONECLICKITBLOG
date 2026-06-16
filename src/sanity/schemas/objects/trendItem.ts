@@ -37,6 +37,12 @@ export default defineType({
       to: [{ type: 'category' }],
     }),
     defineField({
+      name: 'score',
+      title: 'Score',
+      type: 'number',
+      description: 'Automated relevance score (0–100) based on mention frequency and recency.',
+    }),
+    defineField({
       name: 'relatedPosts',
       title: 'Related Posts',
       type: 'array',

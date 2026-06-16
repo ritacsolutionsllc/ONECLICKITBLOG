@@ -1,10 +1,8 @@
 import type { NormalizedItem } from './types'
 import { getWriteClient } from './sanity-write-client'
+import { generateAiTakes } from '../ai/generate-ai-take'
 
-/**
- * Shape a NormalizedItem into a Sanity digestItem object.
- */
-function toDigestItem(item: NormalizedItem) {
+function toDigestItem(item: NormalizedItem, aiTake?: string) {
   return {
     _type: 'digestItem',
     _key: item.hash,
@@ -15,12 +13,10 @@ function toDigestItem(item: NormalizedItem) {
       _ref: item.sourceRef,
     },
     summary: item.summary,
+    ...(aiTake ? { aiTake } : {}),
   }
 }
 
-/**
- * Build a date string like "2026-04-06" from a Date.
- */
 function formatDateSlug(date: Date): string {
   return date.toISOString().split('T')[0]
 }
@@ -28,6 +24,9 @@ function formatDateSlug(date: Date): string {
 /**
  * Create a new draft news_digest document in Sanity,
  * or append items to today's existing draft digest.
+ *
+ * If ANTHROPIC_API_KEY is set, generates an aiTake callout for every item
+ * before writing. Items where AI generation fails are saved without aiTake.
  */
 export async function assembleDigest(
   items: NormalizedItem[],
@@ -36,10 +35,20 @@ export async function assembleDigest(
   const client = getWriteClient()
   const today = new Date()
   const dateSlug = formatDateSlug(today)
-  const digestItems = items.map(toDigestItem)
+
+  // Generate aiTake callouts when the AI key is available
+  let aiTakes = new Map<string, string>()
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      aiTakes = await generateAiTakes(items)
+    } catch {
+      // Non-fatal: proceed without AI callouts
+    }
+  }
+
+  const digestItems = items.map((item) => toDigestItem(item, aiTakes.get(item.hash)))
 
   if (existingDigestId) {
-    // Append new items to existing draft digest
     await client
       .patch(existingDigestId)
       .setIfMissing({ items: [] })
@@ -49,7 +58,6 @@ export async function assembleDigest(
     return { digestId: existingDigestId, itemCount: digestItems.length }
   }
 
-  // Create a new draft digest
   const title = `Daily Brief – ${today.toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',

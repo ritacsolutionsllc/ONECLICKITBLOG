@@ -21,13 +21,17 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const [posts, guides] = await Promise.all([
-    sanityFetch<SlugItem[]>({ query: allPostSlugsQuery, tags: ['post'] }),
-    sanityFetch<SlugItem[]>({ query: allGuideSlugsQuery, tags: ['guide'] }),
-  ])
-  return [...(posts || []), ...(guides || [])].map((item) => ({
-    slug: item.slug,
-  }))
+  try {
+    const [posts, guides] = await Promise.all([
+      sanityFetch<SlugItem[]>({ query: allPostSlugsQuery, tags: ['post'] }),
+      sanityFetch<SlugItem[]>({ query: allGuideSlugsQuery, tags: ['guide'] }),
+    ])
+    return [...(posts || []), ...(guides || [])].map((item) => ({
+      slug: item.slug,
+    }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

@@ -31,3 +31,19 @@ export const todayDraftDigestQuery = groq`*[
   title,
   items
 }`
+
+/** Fetch recent digest item headlines for trend analysis */
+export const recentDigestHeadlinesQuery = groq`*[_type == "news_digest" && publishedAt > $since] {
+  "items": items[] {
+    headline,
+    summary,
+    "category": source->category->title
+  }
+}.items[]`
+
+/** Fetch all active categories */
+export const allActiveCategoriesQuery = groq`*[_type == "category"] | order(title asc) {
+  _id,
+  title,
+  "slug": slug.current
+}`

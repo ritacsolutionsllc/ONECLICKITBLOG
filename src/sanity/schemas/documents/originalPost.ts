@@ -66,6 +66,27 @@ export default defineType({
       initialValue: false,
     }),
     defineField({
+      name: 'status',
+      title: 'Status',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Draft', value: 'draft' },
+          { title: 'Review', value: 'review' },
+          { title: 'Published', value: 'published' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'draft',
+    }),
+    defineField({
+      name: 'aiGenerated',
+      title: 'AI Generated',
+      type: 'boolean',
+      description: 'Indicates this post was drafted by AI and requires editorial review.',
+      initialValue: false,
+    }),
+    defineField({
       name: 'seo',
       title: 'SEO',
       type: 'seo',
