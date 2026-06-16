@@ -66,11 +66,54 @@ async function seed() {
   // ── Sources ─────────────────────────────────────────────
   console.log('Creating RSS sources...')
   const sources = [
-    { name: 'The Verge', slug: 'the-verge', url: 'https://www.theverge.com/rss/index.xml', cat: 'dev-tools' },
-    { name: 'Ars Technica', slug: 'ars-technica', url: 'https://feeds.arstechnica.com/arstechnica/index', cat: 'hardware' },
-    { name: 'TechCrunch', slug: 'techcrunch', url: 'https://techcrunch.com/feed/', cat: 'ai-ml' },
-    { name: 'Hacker News', slug: 'hacker-news', url: 'https://hnrss.org/frontpage', cat: 'dev-tools' },
-    { name: 'Krebs on Security', slug: 'krebs-security', url: 'https://krebsonsecurity.com/feed/', cat: 'cybersecurity' },
+    // AI & Machine Learning
+    { name: 'OpenAI Blog',             slug: 'openai-blog',         url: 'https://openai.com/blog/rss.xml',                                       cat: 'ai-ml' },
+    { name: 'Anthropic News',          slug: 'anthropic-news',      url: 'https://www.anthropic.com/news/rss.xml',                                 cat: 'ai-ml' },
+    { name: 'Google AI Blog',          slug: 'google-ai-blog',      url: 'https://research.google/blog/rss/',                                      cat: 'ai-ml' },
+    { name: 'Hugging Face Blog',       slug: 'huggingface-blog',    url: 'https://huggingface.co/blog/feed.xml',                                   cat: 'ai-ml' },
+    { name: 'MIT Tech Review – AI',    slug: 'mit-tech-ai',         url: 'https://www.technologyreview.com/topic/artificial-intelligence/feed/',   cat: 'ai-ml' },
+    { name: 'VentureBeat AI',          slug: 'venturebeat-ai',      url: 'https://venturebeat.com/category/ai/feed/',                              cat: 'ai-ml' },
+    { name: 'Google DeepMind Blog',    slug: 'deepmind-blog',       url: 'https://deepmind.google/blog/rss.xml',                                   cat: 'ai-ml' },
+    { name: 'The Batch (deeplearning.ai)', slug: 'the-batch',       url: 'https://read.deeplearning.ai/the-batch/rss/',                            cat: 'ai-ml' },
+
+    // Cybersecurity
+    { name: 'Krebs on Security',       slug: 'krebs-security',      url: 'https://krebsonsecurity.com/feed/',                                      cat: 'cybersecurity' },
+    { name: 'Schneier on Security',    slug: 'schneier',            url: 'https://www.schneier.com/feed/',                                         cat: 'cybersecurity' },
+    { name: 'The Hacker News',         slug: 'thehackernews',       url: 'https://feeds.feedburner.com/TheHackersNews',                            cat: 'cybersecurity' },
+    { name: 'Bleeping Computer',       slug: 'bleepingcomputer',    url: 'https://www.bleepingcomputer.com/feed/',                                  cat: 'cybersecurity' },
+    { name: 'Dark Reading',            slug: 'darkreading',         url: 'https://www.darkreading.com/rss.xml',                                    cat: 'cybersecurity' },
+    { name: 'SecurityWeek',            slug: 'securityweek',        url: 'https://feeds.feedburner.com/Securityweek',                              cat: 'cybersecurity' },
+
+    // Cloud & DevOps
+    { name: 'AWS News Blog',           slug: 'aws-blog',            url: 'https://aws.amazon.com/blogs/aws/feed/',                                 cat: 'cloud-devops' },
+    { name: 'Google Cloud Blog',       slug: 'google-cloud-blog',   url: 'https://cloud.google.com/feeds/gcp-news-rss.xml',                        cat: 'cloud-devops' },
+    { name: 'Azure Updates',           slug: 'azure-updates',       url: 'https://azurecomcdn.azureedge.net/en-us/updates/feed/',                  cat: 'cloud-devops' },
+    { name: 'The New Stack',           slug: 'thenewstack',         url: 'https://thenewstack.io/feed',                                            cat: 'cloud-devops' },
+    { name: 'DevOps.com',              slug: 'devopscom',           url: 'https://devops.com/feed/',                                               cat: 'cloud-devops' },
+
+    // Developer Tools & Open Source
+    { name: 'GitHub Blog',             slug: 'github-blog',         url: 'https://github.blog/feed/',                                              cat: 'dev-tools' },
+    { name: 'InfoQ',                   slug: 'infoq',               url: 'https://feed.infoq.com/',                                                cat: 'dev-tools' },
+    { name: 'Dev.to',                  slug: 'devto',               url: 'https://dev.to/feed',                                                    cat: 'dev-tools' },
+    { name: 'Hacker News',             slug: 'hacker-news',         url: 'https://hnrss.org/frontpage',                                            cat: 'dev-tools' },
+
+    // General Tech & Startups
+    { name: 'TechCrunch',              slug: 'techcrunch',          url: 'https://techcrunch.com/feed/',                                           cat: 'ai-ml' },
+    { name: 'The Verge',               slug: 'the-verge',           url: 'https://www.theverge.com/rss/index.xml',                                 cat: 'dev-tools' },
+    { name: 'Ars Technica',            slug: 'ars-technica',        url: 'https://feeds.arstechnica.com/arstechnica/index',                        cat: 'hardware' },
+    { name: 'Wired',                   slug: 'wired',               url: 'https://www.wired.com/feed/rss',                                         cat: 'dev-tools' },
+    { name: 'MIT Technology Review',   slug: 'mit-tech-review',     url: 'https://www.technologyreview.com/feed/',                                 cat: 'dev-tools' },
+    { name: 'VentureBeat',             slug: 'venturebeat',         url: 'https://venturebeat.com/feed/',                                          cat: 'ai-ml' },
+    { name: 'ZDNet',                   slug: 'zdnet',               url: 'https://www.zdnet.com/news/rss.xml',                                     cat: 'dev-tools' },
+
+    // Hardware & Consumer Tech
+    { name: "Tom's Hardware",          slug: 'tomshardware',        url: 'https://www.tomshardware.com/feeds/all',                                 cat: 'hardware' },
+    { name: 'Engadget',                slug: 'engadget',            url: 'https://www.engadget.com/rss.xml',                                       cat: 'hardware' },
+    { name: '9to5Mac',                 slug: '9to5mac',             url: 'https://9to5mac.com/feed/',                                              cat: 'hardware' },
+    { name: '9to5Google',              slug: '9to5google',          url: 'https://9to5google.com/feed/',                                           cat: 'hardware' },
+
+    // Networking
+    { name: 'Network World',           slug: 'network-world',       url: 'https://www.networkworld.com/index.rss',                                 cat: 'networking' },
   ]
 
   const sourceRefs = {}

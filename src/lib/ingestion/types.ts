@@ -22,6 +22,8 @@ export interface ParsedFeedItem {
   guid: string
 }
 
+export type Priority = 'breaking' | 'high' | 'medium' | 'low'
+
 /** A normalized item ready for dedup and storage */
 export interface NormalizedItem {
   headline: string
@@ -32,6 +34,9 @@ export interface NormalizedItem {
   publishedAt: string
   hash: string        // SHA-256 of guid or link for dedup
   categoryRef?: string // Sanity category _id
+  priority?: Priority
+  score?: number
+  aiTake?: string
 }
 
 /** Result of the full ingestion run */

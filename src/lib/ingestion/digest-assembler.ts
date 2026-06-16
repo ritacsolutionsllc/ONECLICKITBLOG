@@ -15,6 +15,8 @@ function toDigestItem(item: NormalizedItem) {
       _ref: item.sourceRef,
     },
     summary: item.summary,
+    ...(item.aiTake ? { aiTake: item.aiTake } : {}),
+    ...(item.priority ? { priority: item.priority } : {}),
   }
 }
 

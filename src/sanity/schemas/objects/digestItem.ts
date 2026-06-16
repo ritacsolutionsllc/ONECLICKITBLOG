@@ -33,7 +33,21 @@ export default defineType({
       title: 'AI Take',
       type: 'text',
       rows: 3,
-      description: 'AI-generated commentary on this item',
+      description: 'AI-generated "why it matters" sentence',
+    }),
+    defineField({
+      name: 'priority',
+      title: 'Priority',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Breaking', value: 'breaking' },
+          { title: 'High', value: 'high' },
+          { title: 'Medium', value: 'medium' },
+          { title: 'Low', value: 'low' },
+        ],
+      },
+      initialValue: 'medium',
     }),
     defineField({
       name: 'image',

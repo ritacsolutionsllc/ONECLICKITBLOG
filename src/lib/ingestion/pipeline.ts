@@ -1,21 +1,26 @@
 import { getWriteClient } from './sanity-write-client'
 import { parseFeed } from './feed-parser'
-import { normalizeItems, deduplicateItems, scoreByRecency } from './dedup'
+import { normalizeItems, deduplicateItems } from './dedup'
+import { rankItems } from './scorer'
+import { generateAiTakes } from './ai-summarize'
 import { assembleDigest } from './digest-assembler'
 import { activeSourcesQuery, existingHashesQuery, todayDraftDigestQuery } from './queries'
 import type { IngestionSource, IngestionResult } from './types'
 
 const MAX_DIGEST_ITEMS = 30
+// Only generate AI takes for the top N items per run to keep API costs low
+const AI_TAKE_LIMIT = 8
 
 /**
- * Run the full RSS ingestion pipeline:
+ * Full RSS ingestion pipeline:
  *
  * 1. Fetch active sources from Sanity
- * 2. Parse each source's RSS feed in parallel
+ * 2. Parse each RSS feed in parallel
  * 3. Normalize and flatten all items
- * 4. Deduplicate against recent digests
- * 5. Score and rank by recency
- * 6. Assemble into a draft news_digest (create or append)
+ * 4. Deduplicate against recent digests (3-day window)
+ * 5. Score by relevance + recency + breaking-news signal
+ * 6. Generate AI editorial takes for top items (optional — needs ANTHROPIC_API_KEY)
+ * 7. Assemble into today's draft news_digest (create or append)
  */
 export async function runIngestionPipeline(): Promise<IngestionResult> {
   const client = getWriteClient()
@@ -23,7 +28,6 @@ export async function runIngestionPipeline(): Promise<IngestionResult> {
 
   // 1. Fetch active sources
   const sources = await client.fetch<IngestionSource[]>(activeSourcesQuery)
-
   if (!sources || sources.length === 0) {
     return {
       sourcesProcessed: 0,
@@ -58,20 +62,17 @@ export async function runIngestionPipeline(): Promise<IngestionResult> {
       itemsNew: 0,
       itemsDuplicate: 0,
       digestCreated: false,
-      errors: errors.length
-        ? errors
-        : ['All feeds returned 0 items.'],
+      errors: errors.length ? errors : ['All feeds returned 0 items.'],
     }
   }
 
   // 4. Deduplicate against items from the last 3 days
   const threeDaysAgo = new Date()
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
-
-  const existingUrls = await client.fetch<string[]>(existingHashesQuery, {
-    since: threeDaysAgo.toISOString(),
-  }) || []
-
+  const existingUrls =
+    (await client.fetch<string[]>(existingHashesQuery, {
+      since: threeDaysAgo.toISOString(),
+    })) || []
   const { newItems, duplicateCount } = deduplicateItems(allItems, existingUrls)
 
   if (newItems.length === 0) {
@@ -85,14 +86,20 @@ export async function runIngestionPipeline(): Promise<IngestionResult> {
     }
   }
 
-  // 5. Score and cap
-  const ranked = scoreByRecency(newItems).slice(0, MAX_DIGEST_ITEMS)
+  // 5. Score by relevance + recency + breaking signal, then cap
+  const ranked = rankItems(newItems).slice(0, MAX_DIGEST_ITEMS)
 
-  // 6. Check for today's existing draft, then assemble
+  // 6. Generate AI editorial takes for the highest-value items
+  const aiTakes = await generateAiTakes(ranked.slice(0, AI_TAKE_LIMIT))
+  const finalItems = ranked.map((item) => ({
+    ...item,
+    aiTake: aiTakes.get(item.hash) ?? item.aiTake,
+  }))
+
+  // 7. Check for today's existing draft, then assemble/append
   const now = new Date()
   const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const dayEnd = new Date(dayStart.getTime() + 86_400_000)
-
   const existingDraft = await client.fetch<{ _id: string } | null>(
     todayDraftDigestQuery,
     {
@@ -102,7 +109,7 @@ export async function runIngestionPipeline(): Promise<IngestionResult> {
   )
 
   const { digestId, itemCount } = await assembleDigest(
-    ranked,
+    finalItems,
     existingDraft?._id,
   )
 
